@@ -1,11 +1,21 @@
 ---
-title: BotLang Documentation
+title: "Botlang: a bot-scripting language"
 keywords: sample homepage
 tags: [getting_started]
 sidebar: mydoc_sidebar
 permalink: index.html
-summary: These brief instructions will help you get started quickly with the theme. The other topics in this help provide additional information and detail about working with other aspects of this theme and Jekyll.
+summary: Botlang is an embedded functional domain-specific language (DSL) designed for scripting flexible and powerful interactive chat bots.
 ---
+
+## The language
+
+Botlang is a functional
+
+## Purpose
+
+Botlang was born as an effort to ease the development of customer service bots
+
+## Design
 
 ## Download or clone the theme
 

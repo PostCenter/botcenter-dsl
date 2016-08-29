@@ -1,5 +1,5 @@
 ---
-title: The language
+title: A tour of Botlang
 sidebar: mydoc_sidebar
 permalink: language_tour.html
 folder: mydoc

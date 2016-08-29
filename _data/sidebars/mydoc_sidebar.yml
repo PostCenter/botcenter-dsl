@@ -2,7 +2,7 @@
 
 entries:
 - title: sidebar
-  product: BotLang Doc
+  product: Botlang Doc
   version: 1.0
   folders:
 
@@ -28,12 +28,16 @@ entries:
       output: web, pdf
       type: homepage
 
-    - title: The language
+    - title: Botlang tutorial
       url: /language_tour.html
       output: web, pdf
 
     - title: Scripting a bot
       url: /scripting_a_bot.html
+      output: web, pdf
+
+    - title: Deploying a bot
+      url: /
       output: web, pdf
 
   - title: Reference
