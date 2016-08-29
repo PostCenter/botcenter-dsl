@@ -438,8 +438,8 @@ ul#mysidebar {
 }
 
 span.projectTitle {
-    font-family: Helvetica;
-    font-weight: bold;
+    font-family: 'Lato', sans-serif;
+    /*font-weight: bold;*/
 }
 
 .footer {
