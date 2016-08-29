@@ -4,7 +4,7 @@ topnav:
 - title: Topnav
   items:
     - title: BotLang IDE
-      url: /
+      external_url: http://botlang-ide.botcenter.io
     - title: Source code
       external_url: https://github.com/PostCenter/botcenter-dsl
 #    - title: News
