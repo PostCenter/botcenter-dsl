@@ -18,7 +18,7 @@ The purpose of Botlang is to provide a way to easily program interactive bots wh
 
 ## The language
 
-As a way to accomplish the aforementioned goals, Botlang was born as an expressive functional and dynamically typed domain-specific language, with syntax and semantics inspired by [Lisp](https://en.wikipedia.org/wiki/Lisp_(programming_language)).
+As a way to accomplish the aforementioned goals, Botlang was born as an expressive functional, dynamically typed, and lexically scoped domain-specific language with syntax inspired by [Lisp](https://en.wikipedia.org/wiki/Lisp_(programming_language)).
 
 Botlang is:
 
