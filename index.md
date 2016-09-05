@@ -13,7 +13,7 @@ The purpose of Botlang is to provide a way to easily program interactive bots wh
 1. Allow the creation of bots with complex logic.
 2. Allow bots to perform actions such as interacting with external web services.
 3. Bots must be testable in an isolated environment.
-4. Be embeddable in a host Python application (especially, but not limited to, BotCenter).
+4. Be embeddable in a host Python application.
 5. Allow running Botlang programs without touching the underlying host application.
 6. Be able to resume an execution a long time after it was paused (waiting for a message to arrive).
 
