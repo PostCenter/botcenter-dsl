@@ -3,7 +3,7 @@ title: "Botlang: a bot-scripting language"
 keywords: purpose language execution model runtime introduction
 sidebar: mydoc_sidebar
 permalink: index.html
-summary: Botlang is an embedded functional domain-specific language (DSL) designed for scripting flexible and powerful interactive bots.
+summary: Botlang is an embedded functional domain-specific language (DSL) designed for scripting flexible and powerful interactive bots. It comes with an IDE and testing framework.
 ---
 
 ## Purpose
@@ -27,8 +27,9 @@ Botlang is:
 * **Flexible:** bots are functions, and functions are [first-class citizens](https://en.wikipedia.org/wiki/First-class_citizen).
 * **Web-friendly:** it provides a simple API for dealing with HTTP requests and responses. JSON and XML are supported out-of-the-box.
 * **TDD-friendly:** the language comes with a testing framework that allows testing bots from the beginning. It provides a very simple way of mocking functions such as HTTP requests.
+* **Developer-friendly:** in addition to the language goodies already mentioned, we provide a web IDE for developing and testing bots in a sandbox environment :).
 
-These language features satisfy the first three goals we proposed. The fourth, fifth, and sixth ones are covered by the execution model.
+These features satisfy the first three goals we proposed. The fourth, fifth, and sixth ones are covered by the execution model.
 
 ## The execution model
 

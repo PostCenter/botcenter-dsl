@@ -28,15 +28,19 @@ entries:
       output: web, pdf
       type: homepage
 
-    - title: Botlang tutorial
+    - title: Language basics
       url: /language_tour.html
       output: web, pdf
 
-    - title: Scripting a bot
+    - title: Bot scripting
       url: /scripting_a_bot.html
       output: web, pdf
 
-    - title: Deploying a bot
+    - title: Bot testing
+      url: /
+      output: web, pdf
+
+    - title: Bot deployment
       url: /
       output: web, pdf
 
@@ -53,6 +57,10 @@ entries:
       output: web, pdf
 
     - title: Web API
+      url: /
+      output: web, pdf
+
+    - title: Testing framework
       url: /
       output: web, pdf
 
