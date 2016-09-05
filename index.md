@@ -3,18 +3,19 @@ title: "Botlang: a bot-scripting language"
 keywords: purpose language execution model runtime introduction
 sidebar: mydoc_sidebar
 permalink: index.html
-summary: Botlang is an embedded functional domain-specific language (DSL) designed for scripting flexible and powerful interactive chat bots.
+summary: Botlang is an embedded functional domain-specific language (DSL) designed for scripting flexible and powerful interactive bots.
 ---
 
 ## Purpose
 
 The purpose of Botlang is to provide a way to easily program interactive bots which respond to user messages, and to be able to deploy them in a live production environment. Specifically, Botlang aims to satisfy the following goals:
 
-1. Allow the creation of bots with highly complex logic.
-2. Allow interaction between a bot and external web services.
-3. Be embeddable in a host Python application (especially, but not limited to, BotCenter).
-4. Allow running arbitrary Botlang programs without touching the underlying host application.
-4. Be able to resume an execution a long time after it was paused (waiting for a message to arrive).
+1. Allow the creation of bots with complex logic.
+2. Allow bots to perform actions such as interacting with external web services.
+3. Bots must be testable in an isolated environment.
+4. Be embeddable in a host Python application (especially, but not limited to, BotCenter).
+5. Allow running Botlang programs without touching the underlying host application.
+6. Be able to resume an execution a long time after it was paused (waiting for a message to arrive).
 
 ## The language
 
@@ -22,11 +23,12 @@ As a way to accomplish the aforementioned goals, Botlang was born as an expressi
 
 Botlang is:
 
-* **Concise:** it provides a very simple and expressive syntax.
+* **Concise:** it provides a simple and expressive syntax.
 * **Flexible:** bots are functions, and functions are [first-class citizens](https://en.wikipedia.org/wiki/First-class_citizen).
 * **Web-friendly:** it provides a simple API for dealing with HTTP requests and responses. JSON and XML are supported out-of-the-box.
+* **TDD-friendly:** the language comes with a testing framework that allows testing bots from the beginning. It provides a very simple way of mocking functions such as HTTP requests.
 
-These language features satisfy the first two goals we proposed. The third, fourth, and fifth ones are covered by the execution model.
+These language features satisfy the first three goals we proposed. The fourth, fifth, and sixth ones are covered by the execution model.
 
 ## The execution model
 
@@ -47,4 +49,4 @@ As a domain-specific-language, Botlang was designed around the goals it aims to 
 Botlang is bad at:
 
 * **Intense calculations:** as an interpreted language running on top of Python's interpreter, there is a significant overhead in each calculation. If you need to perform expensive computations as part of your bot's logic, you should do that in an external function that you expose into your Botlang runtime instance.
-* **Concurrency:** don't even try. If you need concurrency as part of your bot's logic, you are doing something wrong.
+* **Concurrency:** don't even try. If you need concurrency as part of your bot's logic, you are probably doing something wrong.
