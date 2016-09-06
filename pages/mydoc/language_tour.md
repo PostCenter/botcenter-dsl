@@ -78,8 +78,40 @@ There are at least three ways to build a list.
     
     For example, the following snippet produces a list of three symbols: **+**, **2** and **3**.
     <pre><code class="language-scheme">'(+ 2 3)</code></pre>
+    
+Botlang lists are immutable, which means they can't be modified once they are created. Operations that work on lists return a new list after invocation, and they never modify the original one.
+
+We've already seen we can create a list by appending an element to another one through the **cons** operator. To remove an element we use ...
 
 ### Dictionaries
+
+A dictionary holds associations between keys and values. Botlang's dictionaries are ordered, which means that they can be traversed as a list of associations, and associations will keep the order in which they were inserted. This is handy when working with some <strike>not so clever</strike> web services which require ordered XML documents, for example.
+
+To create a dictionary, the function **make-dict** is used. This function receives a list of pairs (a list of two elements) as argument. Each pair consists of a key and a value.
+
+For example,
+
+<pre><code class="language-scheme">(make-dict '[
+       (animal "dog")
+       (age 4)
+       (sex "female")
+   ]
+)</code></pre>
+
+creates a dict that associates the key "animal" to the value "dog", the key "age" to the value 4, and the key "sex" to the value "female".
+
+To access a dictionary's value the **get** method is used. Dictionaries are immutable, so new associations can't be added to the same dictionary. The **put** operation returns a new dictionary as a modification of the previous one.
+
+For example, assuming the dictionary defined above is identified as **my-animal**, we can retrieve the value associated to **age** by doing:
+
+<pre><code class="language-scheme">(get my-animal)</code></pre>
+
+which yield us the value 4. We can create a new dictionary for an animal of age 6 by doing:
+
+<pre><code class="language-scheme">(put my-animal 'age 6)</code></pre>
+
+
+
 
 ### Functions
 
