@@ -2,7 +2,7 @@ import unittest
 
 import math
 
-from botlang.environment.primitives import divide_text
+from botlang.environment.primitives.strings import divide_text
 from botlang.interpreter import BotlangSystem
 
 
@@ -232,3 +232,36 @@ class BotlangTestCase(unittest.TestCase):
             ' adjuntar boleta original con timbre “sin bonificación” y en caso'
             ' de Fonasa, indicar que pertenece a Fonasa.'
         )
+
+    def test_type_checking(self):
+
+        self.assertTrue(BotlangSystem().eval('(bool? #t)'))
+        self.assertTrue(BotlangSystem().eval('(bool? #f)'))
+        self.assertFalse(BotlangSystem().eval('(bool? "#t")'))
+        self.assertFalse(BotlangSystem().eval('(bool? "#f")'))
+
+        self.assertTrue(BotlangSystem().eval('(str? "#t")'))
+        self.assertTrue(BotlangSystem().eval('(str? "#f")'))
+        self.assertFalse(BotlangSystem().eval('(str? 2)'))
+        self.assertFalse(BotlangSystem().eval('(str? #f)'))
+
+        self.assertTrue(BotlangSystem().eval('(num? 1)'))
+        self.assertTrue(BotlangSystem().eval('(num? 6.1212121)'))
+        self.assertFalse(BotlangSystem().eval('(num? "#t")'))
+        self.assertFalse(BotlangSystem().eval('(num? #f)'))
+
+        self.assertTrue(BotlangSystem().eval('(int? 2)'))
+        self.assertTrue(BotlangSystem().eval('(int? -667)'))
+        self.assertFalse(BotlangSystem().eval('(int? 6.12)'))
+        self.assertFalse(BotlangSystem().eval('(int? "#f")'))
+
+        self.assertTrue(BotlangSystem().eval('(list? (list 1 2 3))'))
+        self.assertTrue(BotlangSystem().eval('(list? (list))'))
+        self.assertFalse(BotlangSystem().eval('(list? 1)'))
+        self.assertFalse(BotlangSystem().eval('(list? "#f")'))
+
+    def test_random(self):
+        iterations = 1000
+        for index in range(iterations):
+            value = BotlangSystem().eval('(random 0 5)')
+            self.assertTrue(0 <= value <= 5)

@@ -2,6 +2,7 @@ import base64
 import hashlib
 import re
 
+from botlang.parser.bot_definition_checker import BotDefinitionChecker
 from botlang.parser.s_expressions import *
 from botlang.parser.source_reference import SourceReference
 
@@ -17,7 +18,7 @@ class Parser(object):
     asts_cache = {}
 
     @classmethod
-    def parse(cls, code, source_id):
+    def parse(cls, code, source_id=None):
         """
         :param code: Botlang code string to parse
         :param source_id: source code identifier (e.g.: filename)
@@ -30,10 +31,19 @@ class Parser(object):
             return cached_asts
 
         s_expressions = Parser(code, source_id).s_expressions()
-        abstract_syntax_trees = [s_expr.to_ast() for s_expr in s_expressions]
+        abstract_syntax_trees = [
+            cls.s_expr_to_ast(s_expr) for s_expr in s_expressions
+        ]
         cls.asts_cache[code_id] = abstract_syntax_trees
 
         return abstract_syntax_trees
+
+    @classmethod
+    def s_expr_to_ast(cls, s_expr):
+
+        ast = s_expr.to_ast()
+        ast.accept(BotDefinitionChecker(), None)
+        return ast
 
     FIND_STRINGS_REGEX = re.compile(r'"(?:\\"|[^"])*?"')
 
@@ -48,7 +58,7 @@ class Parser(object):
         self.hash_strings()
         self.code = self.remove_comments(self.code)
 
-    REMOVE_COMMENTS_REGEX = re.compile(r"[^;]*(;.*)")
+    REMOVE_COMMENTS_REGEX = re.compile(r"(;+.*)")
 
     def remove_comments(self, code):
 
@@ -64,9 +74,11 @@ class Parser(object):
             str_hash = self.generate_string_hash(string)
             identifier = '__STR__{0}'.format(str_hash)
             self.strings[identifier] = string
-            self.code = self.code.replace(
-                string,
-                identifier
+            pattern = '(^|\s|\(|\[)({})(\s|$|\)|\])'.format(re.escape(string))
+            self.code = re.sub(
+                pattern,
+                lambda m: '{}{}{}'.format(m.group(1), identifier, m.group(3)),
+                self.code
             )
 
     @classmethod
@@ -105,10 +117,10 @@ class Parser(object):
             SExpression.CLOSING_PARENS.index(closed_paren)
 
     @classmethod
-    def raise_unbalanced_parens(cls, line):
+    def raise_unbalanced_parens(cls, reason, line):
 
         raise BotLangSyntaxError(
-            'unbalanced parentheses, line {0}'.format(line)
+            'Unbalanced parentheses: {}, line {}'.format(reason, line)
         )
 
     @classmethod
@@ -156,9 +168,15 @@ class Parser(object):
                 try:
                     start_index, start_line, paren = parens_stack.pop()
                     if not self.parens_match(paren, char):
-                        self.raise_unbalanced_parens(current_line)
+                        self.raise_unbalanced_parens(
+                            "opening and closing symbols don't match",
+                            current_line
+                        )
                 except IndexError:
-                    self.raise_unbalanced_parens(current_line)
+                    self.raise_unbalanced_parens(
+                        'excess closing symbol',
+                        current_line
+                    )
 
                 if len(parens_stack) == 0:
                     code = self.restore_code(
@@ -190,6 +208,6 @@ class Parser(object):
                 )
 
         if len(parens_stack) > 0:
-            self.raise_unbalanced_parens(current_line)
+            self.raise_unbalanced_parens('not closed', current_line)
 
         return s_expressions

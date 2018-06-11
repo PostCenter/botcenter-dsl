@@ -24,6 +24,9 @@ class BotlangTestCase(unittest.TestCase):
         self.assertFalse(BotlangSystem.run('(and #t #f)'))
         self.assertFalse(BotlangSystem.run('(and #f #t)'))
         self.assertFalse(BotlangSystem.run('(and #f #f)'))
+        self.assertFalse(
+            BotlangSystem.run('(and (not (nil? nil)) (equal? (length nil) 1))')
+        )
 
     def test_or(self):
 
@@ -70,6 +73,25 @@ class BotlangTestCase(unittest.TestCase):
         self.assertEqual(
             BotlangSystem(environment).eval(test_code),
             3
+        )
+
+        another_test_code = """
+            (define dict (make-dict (list)))
+            (cond
+                [(equal? sup 1) (put! dict "sup" 1)]
+                [(< sup dawg) (put! dict "dawg" 2)]
+            )
+            dict
+        """
+        environment = BotlangSystem.base_environment().update(
+            {'sup': 1, 'dawg': 2}
+        )
+        self.assertEqual(
+            BotlangSystem(environment).eval(another_test_code).get('sup'),
+            1
+        )
+        self.assertIsNone(
+            BotlangSystem(environment).eval(another_test_code).get('dawg')
         )
 
     def test_primitive_application(self):
@@ -153,7 +175,8 @@ class BotlangTestCase(unittest.TestCase):
             )
         )
         """)
-        self.assertEqual(dict_keys, expected_dict.keys())
+        self.assertTrue(isinstance(dict_keys, list))
+        self.assertEqual(dict_keys, list(expected_dict.keys()))
 
         dict_values = BotlangSystem.run("""
         (values
@@ -165,7 +188,8 @@ class BotlangTestCase(unittest.TestCase):
             )
         )
         """)
-        self.assertEqual(list(dict_values), list(expected_dict.values()))
+        self.assertTrue(isinstance(dict_values, list))
+        self.assertEqual(dict_values, list(expected_dict.values()))
 
         dict_associations = BotlangSystem.run("""
         (associations
@@ -177,7 +201,25 @@ class BotlangTestCase(unittest.TestCase):
             )
         )
         """)
-        self.assertEqual(dict_associations, expected_dict.items())
+        self.assertTrue(isinstance(dict_associations, list))
+        self.assertEqual(dict_associations, list(expected_dict.items()))
+
+        immutable_dict = BotlangSystem.run("""
+        (define my-dict (make-dict (list)))
+        (put my-dict "datum" 10)
+        """)
+        self.assertEqual(len(immutable_dict.values()), 1)
+        self.assertEqual(immutable_dict['datum'], 10)
+
+        mutable_dict = BotlangSystem.run("""
+        (define my-dict (make-dict (list)))
+        (put! my-dict "datum1" 4)
+        (put! my-dict "datum2" 5)
+        my-dict
+        """)
+        self.assertEqual(len(mutable_dict.values()), 2)
+        self.assertEqual(mutable_dict['datum1'], 4)
+        self.assertEqual(mutable_dict['datum2'], 5)
 
     def test_closures(self):
 
@@ -354,62 +396,6 @@ class BotlangTestCase(unittest.TestCase):
         self.assertTrue(isinstance(node_result.data, dict))
         self.assertEqual(node_result.message, 'Holi, soy Botcito')
         self.assertEqual(node_result.bot_state, 'HOLA')
-
-    def test_evaluation_state(self):
-
-        test_dict = {'value': 0}
-
-        def test_primitive():
-            test_dict['value'] += 1
-            return 'holi'
-
-        code = """
-            (bot-node (data)
-                (test-primitive)
-                (test-primitive)
-                (node-result
-                    data
-                    "Holi"
-                    (bot-node (data)
-                        (test-primitive)
-                        (node-result
-                            data
-                            "Chau"
-                            end-node
-                        )
-                    )
-                )
-            )
-        """
-
-        environment = BotlangSystem.base_environment().add_cachable_primitives(
-            {
-                'test-primitive': test_primitive
-            }
-        )
-        first_node_result = BotlangSystem(environment).eval_bot(code, 'oli bot')
-        self.assertEqual(first_node_result.message, 'Holi')
-        self.assertEqual(test_dict['value'], 2)
-
-        execution_state = first_node_result.execution_state
-        bot_node_steps = execution_state.bot_node_steps
-        primitives_evaluations = execution_state.primitives_values
-        self.assertEqual(bot_node_steps, 1)
-        self.assertEqual(len(primitives_evaluations), 2)
-
-        second_node_result = BotlangSystem(environment).eval_bot(
-            code,
-            'otro mensaje',
-            execution_state
-        )
-        self.assertEqual(second_node_result.message, 'Chau')
-        self.assertEqual(test_dict['value'], 3)
-
-        execution_state = second_node_result.execution_state
-        bot_node_steps = execution_state.bot_node_steps
-        primitives_evaluations = execution_state.primitives_values
-        self.assertEqual(bot_node_steps, 2)
-        self.assertEqual(len(primitives_evaluations), 3)
 
     def test_nil(self):
 

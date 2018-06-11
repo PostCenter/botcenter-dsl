@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
+
+from botlang import BotlangSystem
 from botlang.parser import Parser, BotLangSyntaxError
+from botlang.parser.bot_definition_checker import InvalidBotDefinitionException
 from botlang.parser.s_expressions import Tree
 
 
@@ -13,14 +16,12 @@ class ParserTestCase(unittest.TestCase):
         self.assertTrue(Parser('(a [b] (c {d}))').s_expressions())
         self.assertTrue(Parser('(ab [c e (e) {a}] [d])').s_expressions())
 
-        self.assertRaises(
-            BotLangSyntaxError,
-            lambda: Parser('(a))').s_expressions()
-        )
-        self.assertRaises(
-            BotLangSyntaxError,
-            lambda: Parser('([][]}').s_expressions()
-        )
+        with self.assertRaises(BotLangSyntaxError) as cm:
+            Parser('(a))').s_expressions()
+        self.assertTrue('parentheses' in cm.exception.args[0])
+        self.assertTrue('excess' in cm.exception.args[0])
+        self.assertTrue('line 1' in cm.exception.args[0])
+
         self.assertRaises(
             BotLangSyntaxError,
             lambda: Parser('{[[]}').s_expressions()
@@ -29,6 +30,32 @@ class ParserTestCase(unittest.TestCase):
             BotLangSyntaxError,
             lambda: Parser(')ab(').s_expressions()
         )
+        with self.assertRaises(BotLangSyntaxError) as cm:
+            Parser("""
+            (
+                ([][]}
+            )
+            """).s_expressions()
+        self.assertTrue("don't match, line 3" in cm.exception.args[0])
+
+        with self.assertRaises(BotLangSyntaxError) as cm:
+            Parser("""
+            (define f (function (x)
+                ((* x x)
+            ))
+            (f 4)
+            """).s_expressions()
+        self.assertTrue('not closed, line 6' in cm.exception.args[0])
+
+        with self.assertRaises(BotLangSyntaxError) as cm:
+            Parser("""
+            (define f (function (x)
+                (* x x)
+            )))
+            (f 4)
+            """).s_expressions()
+        self.assertTrue('excess' in cm.exception.args[0])
+        self.assertTrue('line 4' in cm.exception.args[0])
 
     def test_comments(self):
 
@@ -211,3 +238,71 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(function_expr.children[4].code, '"String 3"')
         self.assertEqual(function_expr.children[5].code, 'some-id')
         self.assertEqual(function_expr.children[6].code, '"String 4"')
+
+    def test_more_strings(self):
+
+        code = """
+        (replace
+            (replace (replace message "-" "") " " "")
+            "+"
+            ""
+        )
+        (put data "a" "b c")
+        """
+        s_exprs = Parser(code).s_expressions()
+        print(s_exprs[1])
+        self.assertEqual(s_exprs[1].children[2].code, '"a"')
+
+    def test_bot_definitions(self):
+
+        code = """
+            (bot-node (data)
+                [define message (get [input-message] "message")]
+                (node-result
+                    data
+                    (make-dict
+                        (list
+                            (cons "answer" message)
+                        )
+                    )
+                    end-node
+                )
+            )
+        """
+        Parser.parse(code, None)
+
+        code = """
+            (module "a-bot-module"
+                [define bot1 (bot-node (data) (node-result data "" end-node))]
+                (provide bot1)
+            )
+        """
+        Parser.parse(code, None)
+
+        code = """
+            (define bot1 (bot-node (data) (node-result data "" end-node)))
+        """
+        Parser.parse(code, None)
+
+        code = """
+            (function ()
+                (bot-node (data) (node-result data "" end-node))
+            )
+        """
+        self.assertRaises(
+            InvalidBotDefinitionException,
+            lambda: Parser.parse(code, None)
+        )
+
+        code = """
+            (bot-node (data)
+                [define bot2
+                    (bot-node (data) (node-result data "" end-node))
+                ]
+                (bot2 data)
+            )
+        """
+        self.assertRaises(
+            InvalidBotDefinitionException,
+            lambda: Parser.parse(code, None)
+        )
