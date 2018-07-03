@@ -7,9 +7,14 @@ class ExecutionStack(list):
 
     def print_trace(self):
 
+        from botlang.macros.default_macros import DefaultMacros
         return reduce(
             lambda a, n: a + n + '\n',
-            [self.frame_message(frame) for frame in self],
+            [
+                self.frame_message(frame) for frame in self
+                if frame.s_expr.source_reference.source_id !=
+                DefaultMacros.DEFAULT_MACROS_SOURCE_ID
+            ],
             ''
         )
 
@@ -175,7 +180,10 @@ class Evaluator(ASTVisitor):
             )
 
         arg_vals = [arg.accept(self, env) for arg in app_node.arg_exprs]
-        result = fun_val.apply(*arg_vals)
+        if fun_val.is_reflective():
+            result = fun_val.apply(env, *arg_vals)
+        else:
+            result = fun_val.apply(*arg_vals)
         self.execution_stack.pop()
         return result
 

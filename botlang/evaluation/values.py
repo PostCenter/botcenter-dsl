@@ -2,6 +2,21 @@ class Nil(object):
     pass
 
 
+class NativeException(object):
+    """
+    Object representation of a botlang exception.
+    """
+    def __init__(self, name='Exception', description='exception'):
+        self.name = name
+        self.description = description
+
+    def get_type(self):
+        return self.name
+
+    def description(self):
+        return self.description
+
+
 class FunVal(object):
     """
     First-order function values
@@ -11,6 +26,9 @@ class FunVal(object):
 
     def apply(self, *args):
         raise NotImplementedError('Must implement apply(*args)')
+
+    def is_reflective(self):
+        return False
 
 
 class Primitive(FunVal):
@@ -28,6 +46,17 @@ class Primitive(FunVal):
         return '<built-in function {0}>'.format(
             self.env.get_function_name(self)
         )
+
+
+class ReflectivePrimitive(Primitive):
+    """
+    Function that has direct access to the current environment
+    """
+    def apply(self, evaluation_env, *args):
+        return self.proc(evaluation_env, *args)
+
+    def is_reflective(self):
+        return True
 
 
 class InvalidArgumentsException(Exception):
@@ -80,6 +109,12 @@ class BotNodeValue(Closure):
     """
     Bot node (also a lexical closure)
     """
+    def apply(self, context, message=None):
+        if message is not None and len(self.params) == 2:
+            return super(BotNodeValue, self).apply(context, message)
+        else:
+            return super(BotNodeValue, self).apply(context)
+
     def __repr__(self):
         name = self.name()
         if name is None:

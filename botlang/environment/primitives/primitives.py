@@ -2,7 +2,7 @@ import operator as op
 
 
 from botlang.environment.primitives import math, http, collections, strings, \
-    compression, base64, random, datetime
+    compression, base64, random, datetime, reflection, exceptions
 from botlang.evaluation.values import Nil, TerminalNode
 
 
@@ -20,9 +20,7 @@ def any_satisfy(fun, lst):
 class BotlangPrimitives(object):
 
     UNARY_OPERATORS = {
-        'abs': abs,
-        'not': op.not_,
-        'nil?': lambda v: v is Nil or v is None
+        'not': op.not_
     }
 
     BINARY_OPERATORS = {
@@ -54,6 +52,7 @@ class BotlangPrimitives(object):
     }
 
     TYPE_CHECKING = {
+        'nil?': lambda v: v is Nil or v is None,
         'bool?': lambda b: isinstance(b, bool),
         'str?': lambda s: isinstance(s, str),
         'num?': lambda n:
@@ -83,7 +82,8 @@ class BotlangPrimitives(object):
         datetime.DATETIME_PRIMITIVES,
         http.HTTP_PRIMITIVES,
         base64.EXPORT_FUNCTIONS,
-        compression.EXPORT_FUNCTIONS
+        compression.EXPORT_FUNCTIONS,
+        exceptions.EXCEPTION_PRIMITIVES
     ]
 
     @classmethod
@@ -96,7 +96,8 @@ class BotlangPrimitives(object):
 
         environment.update({'end-node': make_terminal_node('BOT_ENDED')})
         environment.add_primitives({
-            'input-message': environment.get_last_input_message
+            'input-message': environment.get_last_input_message     # Legacy
         })
+        environment.add_reflective_primitives(reflection.REFLECTIVE_PRIMITIVES)
 
         return environment

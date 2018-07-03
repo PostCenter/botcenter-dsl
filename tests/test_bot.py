@@ -29,6 +29,26 @@ class TestBots(unittest.TestCase):
             {'some-data': 'hola', 'more-data': 'chao', 'bla': 'da'}
         )
 
+    def test_input_message(self):
+
+        code = """
+        (define node2 (bot-node (context message)
+            (node-result
+                context
+                (append "node2: " message)
+                end-node
+            )
+        ))
+        (bot-node (context message)
+            (node2 context (append "node1: " message))
+        )
+        """
+        result = BotlangSystem.bot_instance().eval_bot(code, 'Hola')
+        self.assertEqual(result.message, 'node2: node1: Hola')
+
+        result = BotlangSystem.bot_instance().eval_bot(code, 'Hola', 'node2')
+        self.assertEqual(result.message, 'node2: Hola')
+
     def test_dict_messages(self):
 
         code = """
